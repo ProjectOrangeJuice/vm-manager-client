@@ -1,0 +1,6 @@
+{
+	"Name": "Test client",
+	"KeyLocation": "./keys",
+	"ServerAddress": "localhost:8080",
+	"ServerFingerprint": "test"
+}
