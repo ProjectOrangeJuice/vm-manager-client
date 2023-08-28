@@ -171,7 +171,7 @@ type Config struct {
 func firstRun() error {
 	config := Config{
 		Name:          "Test client",
-		KeyLocation:   "./keys",
+		KeyLocation:   "./keys/",
 		ServerAddress: "localhost:8080",
 	}
 
