@@ -38,6 +38,8 @@ jobs:
         echo "$TAG"
         echo "tag=$TAG" >> $GITHUB_OUTPUT
         git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
         git push origin $TAG
       
     - name: Release
