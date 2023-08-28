@@ -16,7 +16,7 @@ func main() {
 
 	// read file to check if this is the first run
 
-	// if this is the first run, create a new key pair
+	// if this is the first run, run setup
 	config, exists, err := readConfig()
 	if err != nil {
 		if exists {
