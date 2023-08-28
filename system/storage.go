@@ -1,12 +1,13 @@
 package system
 
 import (
-	"container-manager/shared"
 	"fmt"
 	"log"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 )
 
 func GetFreeStorageSpace() ([]shared.StorageResult, error) {
