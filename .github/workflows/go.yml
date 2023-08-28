@@ -22,10 +22,31 @@ jobs:
         go-version: '1.20'
 
     - name: Build
-      run: go build -o vm-manager-client -v ./...
+      run: go build -o vm-manager-client
       
     - name: Upload executable as artifact
       uses: actions/upload-artifact@v2
       with:
         name: vm-manager-client
         path: ./vm-manager-client  # Path to the executable you built in the previous step
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./vm-manager-client
+        asset_name: vm-manager-client
+        asset_content_type: application/octet-stream
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
