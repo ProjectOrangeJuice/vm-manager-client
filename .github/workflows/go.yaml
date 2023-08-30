@@ -1,0 +1,58 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - name: Build
+      run: go build -o vm-manager-client
+      
+    - name: Upload executable as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: vm-manager-client
+        path: ./vm-manager-client  # Path to the executable you built in the previous step
+    
+    - name: Tag the repository
+      id: tag
+      run: |
+        # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git fetch --tags
+        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+        # Split the tag into an array
+        IFS='.' read -ra ADDR <<< "${latest_tag:1}"  # remove the 'v' and split
+        
+        # Increment the patch version
+        ADDR[2]=$((ADDR[2] + 1))
+        
+        # Construct the new tag
+        new_tag="v${ADDR[0]}.${ADDR[1]}.${ADDR[2]}"
+        echo "$new_tag"
+        echo "tag=$new_tag" >> $GITHUB_OUTPUT
+        git tag -a $new_tag -m "Published version $new_tag" ${GITHUB_SHA}
+        git push origin $new_tag
+      
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: vm-manager-client
+        tag_name: ${{ steps.tag.outputs.tag }}
