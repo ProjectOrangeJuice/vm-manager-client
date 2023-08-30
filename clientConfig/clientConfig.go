@@ -11,6 +11,7 @@ type Config struct {
 	KeyLocation   string
 	ServerAddress string
 	Version       string
+	AutoUpdate    bool
 }
 
 func FirstRun() error {
@@ -18,6 +19,7 @@ func FirstRun() error {
 		Name:          "Test client",
 		KeyLocation:   "./keys/",
 		ServerAddress: "localhost:8080",
+		AutoUpdate:    true,
 	}
 
 	// write json to file

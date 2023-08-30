@@ -10,16 +10,20 @@ import (
 	"strings"
 	"time"
 
+	clientconfig "github.com/ProjectOrangeJuice/vm-manager-client/clientConfig"
+	"github.com/ProjectOrangeJuice/vm-manager-client/update"
 	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 )
 
 type Connection struct {
-	Conn net.Conn
+	Conn   net.Conn
+	Config *clientconfig.Config
 }
 
-func NewConnection(conn net.Conn) Connection {
+func NewConnection(conn net.Conn, config *clientconfig.Config) Connection {
 	return Connection{
-		Conn: conn,
+		Conn:   conn,
+		Config: config,
 	}
 }
 
@@ -52,6 +56,8 @@ func (c *Connection) readLine(line string) {
 		c.sendBackStorage()
 	case "SYSTEM_INFO":
 		c.sendBackSystem()
+	case "UPDATE_NOW":
+		update.UpdateIfNeeded(c.Config)
 	}
 }
 

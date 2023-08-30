@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/ProjectOrangeJuice/vm-manager-client/system"
+	"github.com/ProjectOrangeJuice/vm-manager-client/update"
 	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 )
 
@@ -51,5 +52,22 @@ func (c *Connection) sendBackSystem() {
 	}
 	fmt.Fprintf(c.Conn, "%s\n", out)
 	log.Printf("Sent system info %s", out)
+
+}
+
+func (c *Connection) updateHandler() {
+	log.Print("Updating system")
+	err := update.UpdateIfNeeded(c.Config)
+	if err != nil {
+		out, err := createEvent("UPDATE", shared.UpdateResult{
+			ErrorReason: err.Error(),
+		})
+		if err != nil {
+			log.Printf("Error creating event, %s", err)
+			return
+		}
+		fmt.Fprintf(c.Conn, "%s\n", out)
+		log.Printf("Sent update error %s", out)
+	}
 
 }

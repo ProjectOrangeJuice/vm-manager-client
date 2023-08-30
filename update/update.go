@@ -94,9 +94,16 @@ func Update() error {
 		panic(err)
 	}
 
+	path, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("could not get working directory, %s", err)
+	}
+	file := path + "/vm-manager-client" + release.TagName
+	fmt.Printf("File path -> %s", file)
+
 	for _, asset := range release.Assets {
 		if asset.Name == "vm-manager-client" {
-			err = downloadAsset(asset.BrowserDownloadURL)
+			err = downloadAsset(asset.BrowserDownloadURL, file)
 			break
 		}
 	}
@@ -104,13 +111,15 @@ func Update() error {
 		return fmt.Errorf("could not download asset, %s", err)
 	}
 
-	//Restart self
-	executable, err := os.Executable()
+	// Update the config
+	err = clientconfig.UpdateVersion(release.TagName)
 	if err != nil {
-		return fmt.Errorf("could not get executable, %s", err)
+		return fmt.Errorf("could not update version, %s", err)
 	}
+
+	//Restart self
 	// Prepare to re-execute the same program
-	cmd := exec.Command(executable)
+	cmd := exec.Command(file)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
@@ -127,14 +136,14 @@ func Update() error {
 	return nil
 }
 
-func downloadAsset(url string) error {
+func downloadAsset(url, fileLoc string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("could not get url, %s", err)
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create("vm-manager-client")
+	out, err := os.Create(fileLoc)
 	if err != nil {
 		return fmt.Errorf("could not create file, %s", err)
 	}
@@ -143,6 +152,11 @@ func downloadAsset(url string) error {
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		return fmt.Errorf("could not write to file, %s", err)
+	}
+
+	err = os.Chmod(fileLoc, 0755)
+	if err != nil {
+		return fmt.Errorf("could not chmod file, %s", err)
 	}
 
 	log.Println("Downloaded vm-manager successfully!")

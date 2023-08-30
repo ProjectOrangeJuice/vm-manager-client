@@ -30,20 +30,20 @@ func main() {
 		}
 		return
 	}
-
-	log.Printf("Config [%+v]", config)
 	ver, err := update.WhatVersionStartup(&config)
 	if err != nil {
 		log.Printf("Error getting version, %s", err)
 		return
 	}
 	log.Printf("Version [%s]", ver)
-
-	// Make it do the update
-	err = update.UpdateIfNeeded(&config)
-	if err != nil {
-		log.Printf("Error updating, %s", err)
-		return
+	log.Printf("Config [%+v]", config)
+	if config.AutoUpdate {
+		// Make it do the update
+		err = update.UpdateIfNeeded(&config)
+		if err != nil {
+			log.Printf("Error updating, %s", err)
+			return
+		}
 	}
 
 	TLSConfig, err := cert.SetupTLSConfig(config.KeyLocation, config.Name)
@@ -59,7 +59,7 @@ func main() {
 			return
 		}
 
-		serverConnection := connection.NewConnection(conn)
+		serverConnection := connection.NewConnection(conn, &config)
 		serverConnection.ProcessLines() // Loops forever until disconnected
 
 		log.Printf("Disconnected, trying again in 5 seconds")
