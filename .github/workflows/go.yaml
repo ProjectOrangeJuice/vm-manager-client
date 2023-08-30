@@ -36,11 +36,20 @@ jobs:
         # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
-        echo "$TAG"
-        echo "tag=$TAG" >> $GITHUB_OUTPUT
-        git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
-        git push origin $TAG
+        git fetch --tags
+        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+        # Split the tag into an array
+        IFS='.' read -ra ADDR <<< "${latest_tag:1}"  # remove the 'v' and split
+        
+        # Increment the patch version
+        ADDR[2]=$((ADDR[2] + 1))
+        
+        # Construct the new tag
+        new_tag="v${ADDR[0]}.${ADDR[1]}.${ADDR[2]}"
+        echo "$new_tag"
+        echo "tag=$new_tag" >> $GITHUB_OUTPUT
+        git tag -a $new_tag -m "Published version $new_tag" ${GITHUB_SHA}
+        git push origin $new_tag
       
     - name: Release
       uses: softprops/action-gh-release@v1
