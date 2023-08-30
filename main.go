@@ -2,14 +2,13 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/json"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/ProjectOrangeJuice/vm-manager-client/cert"
+	clientconfig "github.com/ProjectOrangeJuice/vm-manager-client/clientConfig"
 	"github.com/ProjectOrangeJuice/vm-manager-client/connection"
+	"github.com/ProjectOrangeJuice/vm-manager-client/update"
 )
 
 func main() {
@@ -17,14 +16,14 @@ func main() {
 	// read file to check if this is the first run
 
 	// if this is the first run, run setup
-	config, exists, err := readConfig()
+	config, exists, err := clientconfig.ReadConfig()
 	if err != nil {
 		if exists {
 			log.Printf("Error reading config file, %s. As the file exists, we won't create it", err)
 			return
 		}
 		log.Printf("Config file was not there, running setup [%s]", err)
-		err = firstRun()
+		err = clientconfig.FirstRun()
 		if err != nil {
 			log.Printf("First run failed, %s", err)
 			return
@@ -33,6 +32,20 @@ func main() {
 	}
 
 	log.Printf("Config [%+v]", config)
+	ver, err := update.WhatVersionStartup(&config)
+	if err != nil {
+		log.Printf("Error getting version, %s", err)
+		return
+	}
+	log.Printf("Version [%s]", ver)
+
+	// Make it do the update
+	err = update.UpdateIfNeeded(&config)
+	if err != nil {
+		log.Printf("Error updating, %s", err)
+		return
+	}
+
 	TLSConfig, err := cert.SetupTLSConfig(config.KeyLocation, config.Name)
 	if err != nil {
 		log.Fatal(err)
@@ -55,48 +68,4 @@ func main() {
 
 	}
 
-}
-
-type Config struct {
-	Name          string
-	KeyLocation   string
-	ServerAddress string
-}
-
-func firstRun() error {
-	config := Config{
-		Name:          "Test client",
-		KeyLocation:   "./keys/",
-		ServerAddress: "localhost:8080",
-	}
-
-	// write json to file
-	file, err := os.Create("config.json")
-	if err != nil {
-		return fmt.Errorf("could not create config file, %s", err)
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "\t")
-	err = encoder.Encode(config)
-	if err != nil {
-		return fmt.Errorf("could not encode config file, %s", err)
-	}
-	return nil
-}
-
-func readConfig() (Config, bool, error) {
-	file, err := os.Open("config.json")
-	if err != nil {
-		return Config{}, false, fmt.Errorf("could not open config file, %s", err)
-	}
-	defer file.Close()
-
-	config := Config{}
-	err = json.NewDecoder(file).Decode(&config)
-	if err != nil {
-		return Config{}, true, fmt.Errorf("could not decode config file, %s", err)
-	}
-	return config, true, nil
 }
