@@ -114,6 +114,7 @@ func SetupTLSConfig(config *clientconfig.Config) (*tls.Config, error) {
 		RootCAs:      caCertPool,
 	}
 	if config.AllowInsecureSSL {
+		log.Println("Allowed insecure")
 		tlsConfig.InsecureSkipVerify = true
 	}
 
