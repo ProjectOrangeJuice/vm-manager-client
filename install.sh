@@ -13,7 +13,8 @@ mkdir -p /etc/vm-manager-client
 echo "Creating service"
 echo "[Unit]
 Description=VM Manager Client
-After=network.target
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 Type=simple
