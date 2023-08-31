@@ -16,7 +16,7 @@ type Config struct {
 
 func FirstRun() error {
 	config := Config{
-		Name:          "Test client",
+		Name:          "NOT_SET",
 		KeyLocation:   "./keys/",
 		ServerAddress: "localhost:8080",
 		AutoUpdate:    true,

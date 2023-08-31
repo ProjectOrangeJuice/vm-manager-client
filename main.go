@@ -49,6 +49,11 @@ func main() {
 		}
 	}
 
+	if config.Name == "NOT_SET" {
+		log.Println("The client name is not set. Please set it in the config file and restart the client")
+		return
+	}
+
 	TLSConfig, err := cert.SetupTLSConfig(config.KeyLocation, config.Name)
 	if err != nil {
 		log.Fatal(err)
