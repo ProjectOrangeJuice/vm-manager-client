@@ -12,9 +12,7 @@ import (
 )
 
 func main() {
-	log.Println("THIS IS AN OLD VERSION")
 	// read file to check if this is the first run
-
 	// if this is the first run, run setup
 	config, exists, err := clientconfig.ReadConfig()
 	if err != nil {
@@ -61,16 +59,14 @@ func main() {
 		if err != nil {
 			log.Printf("Error dialing, trying again in 5 seconds: %s", err)
 			time.Sleep(5 * time.Second)
-			return
+			continue
 		}
 
 		serverConnection := connection.NewConnection(conn, &config)
 		serverConnection.ProcessLines() // Loops forever until disconnected
 
 		log.Printf("Disconnected, trying again in 5 seconds")
-		conn.Close()
 		time.Sleep(5 * time.Second)
-
 	}
 
 }
