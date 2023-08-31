@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
+	"strings"
 
 	clientconfig "github.com/ProjectOrangeJuice/vm-manager-client/clientConfig"
 )
@@ -28,6 +30,7 @@ func UpdateIfNeeded(config *clientconfig.Config) error {
 }
 
 func WhatVersionStartup(config *clientconfig.Config) (string, error) {
+
 	if config.Version == "" {
 		// This must be the first "update". Presume we are the latest version
 		v, err := getLatestVersion()
@@ -42,6 +45,39 @@ func WhatVersionStartup(config *clientconfig.Config) (string, error) {
 	}
 
 	return config.Version, nil
+}
+
+// This is called on every startup and checks if the filename is the temp name. If it is, it will rename itself to the correct name and restart
+func FinishUpdate() error {
+	file, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("could not get executable, %s", err)
+	}
+	if strings.Contains(file, "vm-manager-client.update") {
+		// Rename the file
+		newFile := strings.Replace(file, ".update", "", 1)
+		err = os.Rename(file, newFile)
+		if err != nil {
+			return fmt.Errorf("could not rename file, %s", err)
+		}
+		log.Println("Renamed the file")
+		//Restart self
+		// Prepare to re-execute the same program
+		cmd := exec.Command(newFile)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+
+		// Start the new instance of the program
+		err = cmd.Start()
+		if err != nil {
+			return fmt.Errorf("could not restart, %s", err)
+		}
+
+		// Exit the current program
+		os.Exit(0)
+	}
+	return nil
 }
 
 type Release struct {
@@ -94,11 +130,20 @@ func Update() error {
 		panic(err)
 	}
 
-	path, err := os.Getwd()
+	// Remove last update file if it exists
+	if _, err := os.Stat("vm-manager-client.update"); err == nil {
+		err = os.Remove("vm-manager-client.update")
+		if err != nil {
+			return fmt.Errorf("could not remove update file, %s", err)
+		}
+	}
+
+	osExec, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("could not get working directory, %s", err)
 	}
-	file := path + "/vm-manager-client" + release.TagName
+	path := path.Dir(osExec)
+	file := path + "/vm-manager-client.update"
 	fmt.Printf("File path -> %s", file)
 
 	for _, asset := range release.Assets {
