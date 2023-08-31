@@ -7,19 +7,21 @@ import (
 )
 
 type Config struct {
-	Name          string
-	KeyLocation   string
-	ServerAddress string
-	Version       string
-	AutoUpdate    bool
+	Name             string
+	KeyLocation      string
+	ServerAddress    string
+	Version          string
+	AutoUpdate       bool
+	AllowInsecureSSL bool
 }
 
 func FirstRun() error {
 	config := Config{
-		Name:          "NOT_SET",
-		KeyLocation:   "./keys/",
-		ServerAddress: "localhost:8080",
-		AutoUpdate:    true,
+		Name:             "NOT_SET",
+		KeyLocation:      "/etc/vm-manager-client/keys/",
+		ServerAddress:    "localhost:8080",
+		AutoUpdate:       true,
+		AllowInsecureSSL: false,
 	}
 
 	// write json to file

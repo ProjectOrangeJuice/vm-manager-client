@@ -54,7 +54,7 @@ func main() {
 		return
 	}
 
-	TLSConfig, err := cert.SetupTLSConfig(config.KeyLocation, config.Name)
+	TLSConfig, err := cert.SetupTLSConfig(&config)
 	if err != nil {
 		log.Fatal(err)
 	}

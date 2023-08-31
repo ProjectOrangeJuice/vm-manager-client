@@ -12,6 +12,8 @@ import (
 	"math/big"
 	"os"
 	"time"
+
+	clientconfig "github.com/ProjectOrangeJuice/vm-manager-client/clientConfig"
 )
 
 // GenerateCert will generate a new certificate and key pair in pem format
@@ -79,17 +81,17 @@ func GenerateCert(name, dir string) error {
 	return nil
 }
 
-func SetupTLSConfig(dir, name string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(dir+"client-cert.pem", dir+"client-key.pem")
+func SetupTLSConfig(config *clientconfig.Config) (*tls.Config, error) {
+	cert, err := tls.LoadX509KeyPair(config.KeyLocation+"client-cert.pem", config.KeyLocation+"client-key.pem")
 	if err != nil {
 		// files do not exist
 		if os.IsNotExist(err) {
 			log.Printf("Generating new certificate and key pair")
-			err = GenerateCert(name, dir)
+			err = GenerateCert(config.Name, config.KeyLocation)
 			if err != nil {
 				return nil, fmt.Errorf("could not generate certificate, %s", err)
 			}
-			cert, err = tls.LoadX509KeyPair(dir+"client-cert.pem", dir+"client-key.pem")
+			cert, err = tls.LoadX509KeyPair(config.KeyLocation+"client-cert.pem", config.KeyLocation+"client-key.pem")
 			if err != nil {
 				return nil, fmt.Errorf("could not load key pair, %s", err)
 			}
@@ -99,7 +101,7 @@ func SetupTLSConfig(dir, name string) (*tls.Config, error) {
 	}
 
 	// Load the server CA
-	caCert, err := os.ReadFile(dir + "server-cert.pem")
+	caCert, err := os.ReadFile(config.KeyLocation + "server-cert.pem")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read server CA: %v", err)
 	}
@@ -111,5 +113,9 @@ func SetupTLSConfig(dir, name string) (*tls.Config, error) {
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
 	}
+	if config.AllowInsecureSSL {
+		tlsConfig.InsecureSkipVerify = true
+	}
+
 	return tlsConfig, nil
 }
