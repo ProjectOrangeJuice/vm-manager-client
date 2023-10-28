@@ -3,6 +3,7 @@ package connection
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ProjectOrangeJuice/vm-manager-client/system"
 	"github.com/ProjectOrangeJuice/vm-manager-client/update"
@@ -39,10 +40,19 @@ func (c *Connection) sendBackSystem() {
 		log.Printf("Error getting ram info, %s", err)
 		return
 	}
+
+	// get hostname
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Printf("Error getting hostname, %s", err)
+		return
+	}
+
 	outStruct := shared.SystemResult{
 		CPUUseage:   cpu,
 		TotalMemory: totalRam,
 		FreeMemory:  freeRam,
+		Hostname:    hostname,
 	}
 
 	out, err := createEvent("SYSTEM", outStruct)
