@@ -1,7 +1,78 @@
 # !/bin/bash
+
+
+install_package() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [ "$ID" == "ubuntu" ]; then
+            apt install -y $1
+        elif [ "$ID" == "alpine" ]; then
+            apk add $1
+        else
+            echo "Unsupported OS"
+            exit 1
+        fi
+    else
+        echo "Unsupported OS"
+        exit 1
+    fi
+}
+  
+create_service(){
+        if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [ "$ID" == "ubuntu" ]; then
+            echo "[Unit]
+                Description=VM Manager Client
+                Wants=network-online.target
+                After=network.target network-online.target
+
+                [Service]
+                Type=simple
+                User=root
+                WorkingDirectory=/etc/vm-manager-client
+                ExecStart=/usr/local/bin/vm-manager-client
+                Restart=always
+
+                [Install]
+                WantedBy=multi-user.target
+                " > /etc/systemd/system/vm-manager-client.service
+                chmod +x /etc/systemd/system/vm-manager-client.service
+                systemctl daemon-reload
+                systemctl enable vm-manager-client
+                systemctl start vm-manager-client
+        elif [ "$ID" == "alpine" ]; then
+          # create service for alpine in init.d
+          echo '#!/sbin/openrc-run
+                description="VM Manager Client"
+                command="/usr/local/bin/vm-manager-client"
+                command_args=""
+                pidfile="/var/run/vm-manager-client.pid"
+                command_background="yes"
+                depend() {
+                    need net
+                }
+                ' > /etc/init.d/vm-manager-client
+                chmod +x /etc/init.d/vm-manager-client
+                rc-update add vm-manager-client default
+                rc-service vm-manager-client start
+        else
+            echo "Unsupported OS"
+            exit 1
+        fi
+    else
+        echo "Unsupported OS"
+        exit 1
+    fi
+}
+
 echo "Getting latest asset"
-apt install -y curl jq
-# require two args
+
+install_package curl
+install_package jq
+
+    
+# require one arg
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <client name> <server address> <allow insecure>"
     exit 1
@@ -19,29 +90,10 @@ echo "Creating config directory"
 mkdir -p /etc/vm-manager-client
 
 echo "Creating service"
-echo "[Unit]
-Description=VM Manager Client
-Wants=network-online.target
-After=network.target network-online.target
+create_service
 
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/etc/vm-manager-client
-ExecStart=/usr/local/bin/vm-manager-client
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-" > /etc/systemd/system/vm-manager-client.service
-
-echo "Starting service"
-
-systemctl daemon-reload
-systemctl enable vm-manager-client
-systemctl start vm-manager-client
-
-sleep 5
+echo "waiting 15 seconds"
+sleep 15
 
 echo "Edit the config file at /etc/vm-manager-client/config.json"
 echo "And add your server cert to /etc/vm-manager-client/keys/server-cert.pem"
@@ -51,7 +103,8 @@ jq --arg name "$1" '.Name = $name' /etc/vm-manager-client/config.json > /etc/vm-
 
 # if arg 2 is set, replace the server address using jq
 if [ -n "$2" ]; then
-    apt install -y openssl
+    install_package openssl
+
     jq --arg address "$2:8080" '.ServerAddress = $address' /etc/vm-manager-client/config.json > /etc/vm-manager-client/config.json.tmp && mv /etc/vm-manager-client/config.json.tmp /etc/vm-manager-client/config.json
     # download the server cert via curl
     echo | openssl s_client -servername $2 -connect $2:8080 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /etc/vm-manager-client/keys/server-cert.pem
@@ -62,4 +115,18 @@ if [ -n "$3" ]; then
     jq  '.AllowInsecure = true' /etc/vm-manager-client/config.json > /etc/vm-manager-client/config.json.tmp && mv /etc/vm-manager-client/config.json.tmp /etc/vm-manager-client/config.json
 fi
 
-systemctl restart vm-manager-client
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$ID" == "ubuntu" ]; then
+        systemctl restart vm-manager-client
+    elif [ "$ID" == "alpine" ]; then
+        rc-service vm-manager-client restart
+    else
+        echo "Unsupported OS"
+        exit 1
+    fi
+else
+    echo "Unsupported OS"
+    exit 1
+fi
