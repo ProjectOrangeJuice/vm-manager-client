@@ -36,11 +36,11 @@ func main() {
 	log.Printf("Version [%s]", ver)
 	log.Printf("Config [%+v]", config)
 	if config.AutoUpdate {
-		err := update.FinishUpdate()
-		if err != nil {
-			log.Printf("Error finishing update, %s", err)
-			return
-		}
+		// err := update.FinishUpdate()
+		// if err != nil {
+		// 	log.Printf("Error finishing update, %s", err)
+		// 	return
+		// }
 		// Make it do the update
 		err = update.UpdateIfNeeded(&config)
 		if err != nil {

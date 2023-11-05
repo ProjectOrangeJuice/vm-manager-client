@@ -162,9 +162,15 @@ func Update() error {
 		return fmt.Errorf("could not update version, %s", err)
 	}
 
+	// Rename the file
+	err = os.Rename(file, osExec)
+	if err != nil {
+		return fmt.Errorf("could not rename file, %s", err)
+	}
+
 	//Restart self
-	// Prepare to re-execute the same program
-	cmd := exec.Command(file)
+	// Presume this is a service because i'm not that clever
+	cmd := exec.Command("systemctl", "restart", "vm-manager-client")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
