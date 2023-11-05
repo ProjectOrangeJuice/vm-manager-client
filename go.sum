@@ -2,6 +2,10 @@ github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231028231920-7839906ba4
 github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231028231920-7839906ba4c2/go.mod h1:nE7csfA2EJXCn1ItYyHoaInH2o8mQfCuULWyMPSGtPo=
 github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105201714-b8eaaded5f82 h1:7jAGKOE/h1HynD/vmZu5nZ2/4RHWiHmZXzK3mdWUv4s=
 github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105201714-b8eaaded5f82/go.mod h1:4Xgo9U9AL/fkll0Cl8ACXEqDcg+JDnky5EAxYbEvoaE=
+github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105204124-91e16d81c54f h1:dPX4WEqB57zPpWwECx+4b86qMnGp4Q72dkuYq5XecCM=
+github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105204124-91e16d81c54f/go.mod h1:4Xgo9U9AL/fkll0Cl8ACXEqDcg+JDnky5EAxYbEvoaE=
+github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105211535-7a738d2306f4 h1:uqikySA7aGMxDf2aFM6I/hJFh6DQuLsXCJQEcqervV8=
+github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105211535-7a738d2306f4/go.mod h1:4Xgo9U9AL/fkll0Cl8ACXEqDcg+JDnky5EAxYbEvoaE=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.10.0-rc/go.mod h1:ElCzW+ufi8qKqNW0FY314xriJhyJhuoJ3gFZdAHF7NM=
 github.com/bytedance/sonic v1.10.2 h1:GQebETVBxYB7JGWJtLBi07OVzWwt+8dWA00gEVW2ZFE=

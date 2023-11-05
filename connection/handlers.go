@@ -48,11 +48,18 @@ func (c *Connection) sendBackSystem() {
 		return
 	}
 
+	networks, err := system.GetNetworkDetails()
+	if err != nil {
+		log.Printf("Error getting network info, %s", err)
+		return
+	}
+
 	outStruct := shared.SystemResult{
 		CPUUseage:   cpu,
 		TotalMemory: totalRam,
 		FreeMemory:  freeRam,
 		Hostname:    hostname,
+		Networks:    networks,
 		Version:     c.Config.Version,
 	}
 

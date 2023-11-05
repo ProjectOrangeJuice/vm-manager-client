@@ -3,7 +3,7 @@ module github.com/ProjectOrangeJuice/vm-manager-client
 go 1.20
 
 require (
-	github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105201714-b8eaaded5f82
+	github.com/ProjectOrangeJuice/vm-manager-server v0.0.0-20231105211535-7a738d2306f4
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/shirou/gopsutil/v3 v3.23.9
 )
