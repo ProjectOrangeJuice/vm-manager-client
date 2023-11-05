@@ -53,6 +53,7 @@ func (c *Connection) sendBackSystem() {
 		TotalMemory: totalRam,
 		FreeMemory:  freeRam,
 		Hostname:    hostname,
+		Version:     c.Config.Version,
 	}
 
 	out, err := createEvent("SYSTEM", outStruct)
