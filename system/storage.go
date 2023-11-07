@@ -26,7 +26,7 @@ func GetFreeStorageSpace() ([]shared.StorageResult, error) {
 	for index, line := range lines {
 		// Split the line into fields.
 		fields := strings.Fields(line)
-		if len(fields) < 5 || index == 0 {
+		if len(fields) < 6 || index == 0 {
 			continue // This line can't be read
 		}
 
