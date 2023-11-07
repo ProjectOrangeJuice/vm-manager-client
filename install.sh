@@ -112,6 +112,7 @@ if [ -n "$2" ]; then
 
     jq --arg address "$2:8080" '.ServerAddress = $address' /etc/vm-manager-client/config.json > /etc/vm-manager-client/config.json.tmp && mv /etc/vm-manager-client/config.json.tmp /etc/vm-manager-client/config.json
     # download the server cert via curl
+    mkdir -p /etc/vm-manager-client/keys
     touch /etc/vm-manager-client/keys/server-cert.pem
     echo | openssl s_client -servername $2 -connect $2:8080 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /etc/vm-manager-client/keys/server-cert.pem
 fi
