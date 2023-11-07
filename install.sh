@@ -54,7 +54,7 @@ depend() {
 }
 start() {
 ebegin "Starting myservice"
-start-stop-daemon --start --exec /usr/local/bin/vm-manager-client --chdir /etc/vm-manager-client
+start-stop-daemon --start --exec /usr/local/bin/vm-manager-client --chdir /etc/vm-manager-client --stdout /var/log/vm-client.log --stderr /var/log/vm-client-error.log
 eend $?
 }
                 ' > /etc/init.d/vm-manager-client

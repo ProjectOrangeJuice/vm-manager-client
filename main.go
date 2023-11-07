@@ -3,6 +3,9 @@ package main
 import (
 	"crypto/tls"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/ProjectOrangeJuice/vm-manager-client/cert"
@@ -12,6 +15,17 @@ import (
 )
 
 func main() {
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	go func() {
+		<-sigc
+		os.Exit(0)
+	}()
+
 	// read file to check if this is the first run
 	// if this is the first run, run setup
 	config, exists, err := clientconfig.ReadConfig()
