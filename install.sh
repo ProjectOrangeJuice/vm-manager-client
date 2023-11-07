@@ -23,19 +23,19 @@ create_service(){
         . /etc/os-release
         if [ "$ID" == "ubuntu" ]; then
             echo "[Unit]
-                Description=VM Manager Client
-                Wants=network-online.target
-                After=network.target network-online.target
+Description=VM Manager Client
+Wants=network-online.target
+After=network.target network-online.target
 
-                [Service]
-                Type=simple
-                User=root
-                WorkingDirectory=/etc/vm-manager-client
-                ExecStart=/usr/local/bin/vm-manager-client
-                Restart=always
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/etc/vm-manager-client
+ExecStart=/usr/local/bin/vm-manager-client
+Restart=always
 
-                [Install]
-                WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
                 " > /etc/systemd/system/vm-manager-client.service
                 chmod +x /etc/systemd/system/vm-manager-client.service
                 systemctl daemon-reload
@@ -44,14 +44,19 @@ create_service(){
         elif [ "$ID" == "alpine" ]; then
           # create service for alpine in init.d
           echo '#!/sbin/openrc-run
-                description="VM Manager Client"
-                command="/usr/local/bin/vm-manager-client"
-                command_args=""
-                pidfile="/var/run/vm-manager-client.pid"
-                command_background="yes"
-                depend() {
-                    need net
-                }
+description="VM Manager Client"
+command="/usr/local/bin/vm-manager-client"
+command_args=""
+pidfile="/var/run/vm-manager-client.pid"
+command_background="yes"
+depend() {
+    need net
+}
+start() {
+ebegin "Starting myservice"
+start-stop-daemon --start --exec /usr/local/bin/vm-manager-client --chdir /etc/vm-manager-client
+eend $?
+}
                 ' > /etc/init.d/vm-manager-client
                 chmod +x /etc/init.d/vm-manager-client
                 rc-update add vm-manager-client default
