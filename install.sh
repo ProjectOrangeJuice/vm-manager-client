@@ -119,7 +119,7 @@ fi
 
 # if arg 3 is set, replace the allow insecure
 if [ -n "$3" ]; then
-    jq  '.AllowInsecure = true' /etc/vm-manager-client/config.json > /etc/vm-manager-client/config.json.tmp && mv /etc/vm-manager-client/config.json.tmp /etc/vm-manager-client/config.json
+    jq  '.AllowInsecureSSL = true' /etc/vm-manager-client/config.json > /etc/vm-manager-client/config.json.tmp && mv /etc/vm-manager-client/config.json.tmp /etc/vm-manager-client/config.json
 fi
 
 
